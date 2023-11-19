@@ -1,5 +1,6 @@
 import platform
 import sys
+import time
 
 import pytest
 
@@ -14,9 +15,16 @@ def test_import_time(pytester: pytest.Pytester) -> None:
     from time to time, but this should provide an early warning if something is
     added that significantly increases import time.
     """
-    r = pytester.run(
-        sys.executable, "-We", "-c", "import aiohttp_debugtoolbar", timeout=0.6
-    )
+    best_time_ms = 1000
+    cmd = "import time, timeit; time.sleep(1); print(int(timeit.timeit('import aiohttp_debugtoolbar', number=1) * 1000))"
+    for _ in range(3):
+        time.sleep(1)
+        r = pytester.run(sys.executable, "-We", "-X", "importtime", "-c", cmd)
 
-    assert not r.stdout.str()
-    assert not r.stderr.str()
+        print(r.stderr.str())
+        assert not r.stderr.str()
+        runtime_ms = int(r.stdout.str())
+        if runtime_ms < best_time_ms:
+            best_time_ms = runtime_ms
+
+    assert best_time_ms < 200
