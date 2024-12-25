@@ -1,6 +1,6 @@
 -e .
 
-aiohttp==3.10.10
+aiohttp==3.11.11
 aiohttp-jinja2==1.6
 aiohttp-mako==0.4.0
 aioredis==2.0.1
